@@ -71,21 +71,19 @@ console.log('[YT Ratio] Extension loaded');
     ratioDisplay.textContent = ratioFormatted;
   }
 
-  async function fetchLikes(videoId) {
+  async function fetchVideoStats(videoId) {
     try {
       const res = await fetch(`https://www.youtube.com/watch?v=${videoId}`);
       const text = await res.text();
-      const match = text.match(/"likeCount":"(\d+)"/);
-      return match ? parseInt(match[1]) : null;
+      const likesMatch = text.match(/"likeCount":"(\d+)"/);
+      const viewsMatch = text.match(/"viewCount":"(\d+)"/);
+      return {
+        likes: likesMatch ? parseInt(likesMatch[1]) : null,
+        views: viewsMatch ? parseInt(viewsMatch[1]) : null,
+      };
     } catch {
-      return null;
+      return { likes: null, views: null };
     }
-  }
-
-  function formatCount(n) {
-    if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + 'M';
-    if (n >= 1_000) return (n / 1_000).toFixed(1) + 'K';
-    return n.toString();
   }
 
   function updateThumbnailViews() {
@@ -106,16 +104,22 @@ console.log('[YT Ratio] Extension loaded');
       item.setAttribute('data-yt-processed', 'true');
 
       const badge = document.createElement('span');
-      badge.className = 'yt-thumb-likes';
+      badge.className = 'yt-thumb-ratio';
       badge.setAttribute('aria-hidden', 'true');
       badge.style.marginLeft = '6px';
-      badge.style.color = '#aaa';
       badge.style.fontSize = '12px';
       badge.textContent = '…';
       viewsRow.appendChild(badge);
 
-      fetchLikes(videoId).then(likes => {
-        badge.textContent = likes !== null ? formatCount(likes) + ' likes' : '?';
+      fetchVideoStats(videoId).then(({ likes, views }) => {
+        if (likes === null || views === null || views === 0) {
+          badge.style.color = '#aaa';
+          badge.textContent = '?';
+          return;
+        }
+        const ratio = (likes / views) * 100;
+        badge.style.color = getRatioColor(ratio);
+        badge.textContent = ratio.toFixed(1) + '%';
       });
     });
   }
