@@ -71,35 +71,36 @@ console.log('[YT Ratio] Extension loaded');
     ratioDisplay.textContent = ratioFormatted;
   }
 
-  function updateThumbnailNumbers() {
-    const unnumbered = document.querySelectorAll('yt-lockup-view-model:not([data-yt-index])');
-    if (unnumbered.length === 0) return;
+  function updateThumbnailViews() {
+    const unprocessed = document.querySelectorAll('yt-lockup-view-model:not([data-yt-processed])');
+    if (unprocessed.length === 0) return;
 
-    const alreadyNumbered = document.querySelectorAll('yt-lockup-view-model[data-yt-index]');
-    let counter = alreadyNumbered.length + 1;
-
-    unnumbered.forEach(item => {
+    unprocessed.forEach(item => {
       const rows = item.querySelectorAll('.ytContentMetadataViewModelMetadataRow');
       if (rows.length < 2) return;
 
       const viewsRow = rows[1];
+      const viewsSpan = viewsRow.querySelector('.ytContentMetadataViewModelMetadataText');
+      if (!viewsSpan) return;
+
+      const viewsText = viewsSpan.textContent.trim();
+
       const badge = document.createElement('span');
-      badge.className = 'yt-thumb-index';
+      badge.className = 'yt-thumb-views';
       badge.setAttribute('aria-hidden', 'true');
       badge.style.marginLeft = '6px';
       badge.style.color = '#aaa';
       badge.style.fontSize = '12px';
-      badge.textContent = `#${counter}`;
+      badge.textContent = viewsText;
 
       viewsRow.appendChild(badge);
-      item.setAttribute('data-yt-index', counter);
-      counter++;
+      item.setAttribute('data-yt-processed', 'true');
     });
   }
 
   function update() {
     updateRatio();
-    updateThumbnailNumbers();
+    updateThumbnailViews();
   }
 
   if (document.readyState === 'loading') {
