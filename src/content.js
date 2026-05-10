@@ -68,7 +68,7 @@ console.log('[YT Ratio] Extension loaded');
     const btnStyle = window.getComputedStyle(likeButton);
     ratioDisplay.style.backgroundColor = btnStyle.backgroundColor;
     ratioDisplay.style.color = ratioColor;
-    ratioDisplay.textContent = ratioFormatted;
+    ratioDisplay.textContent = 'LVR ' + ratioFormatted;
   }
 
   async function fetchVideoStats(videoId) {
@@ -103,10 +103,16 @@ console.log('[YT Ratio] Extension loaded');
 
       item.setAttribute('data-yt-processed', 'true');
 
+      const delimiter = document.createElement('span');
+      delimiter.setAttribute('aria-hidden', 'true');
+      delimiter.style.color = '#aaa';
+      delimiter.style.margin = '0 4px';
+      delimiter.textContent = '•';
+      viewsRow.appendChild(delimiter);
+
       const badge = document.createElement('span');
       badge.className = 'yt-thumb-ratio';
       badge.setAttribute('aria-hidden', 'true');
-      badge.style.marginLeft = '6px';
       badge.style.fontSize = '12px';
       badge.textContent = '…';
       viewsRow.appendChild(badge);
@@ -119,7 +125,7 @@ console.log('[YT Ratio] Extension loaded');
         }
         const ratio = (likes / views) * 100;
         badge.style.color = getRatioColor(ratio);
-        badge.textContent = ratio.toFixed(1) + '%';
+        badge.textContent = 'LVR ' + ratio.toFixed(1) + '%';
       });
     });
   }
