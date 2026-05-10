@@ -7,7 +7,7 @@
   "host_permissions": ["*://*.youtube.com/*"],
   "content_scripts": [
     {
-      "matches": ["*://*.youtube.com/watch*"],
+      "matches": ["*://*.youtube.com/", "*://*.youtube.com/watch*"],
       "js": ["content.js"]
     }
   ]
