@@ -71,6 +71,23 @@ console.log('[YT Ratio] Extension loaded');
     ratioDisplay.textContent = ratioFormatted;
   }
 
+  async function fetchLikes(videoId) {
+    try {
+      const res = await fetch(`https://www.youtube.com/watch?v=${videoId}`);
+      const text = await res.text();
+      const match = text.match(/"likeCount":"(\d+)"/);
+      return match ? parseInt(match[1]) : null;
+    } catch {
+      return null;
+    }
+  }
+
+  function formatCount(n) {
+    if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + 'M';
+    if (n >= 1_000) return (n / 1_000).toFixed(1) + 'K';
+    return n.toString();
+  }
+
   function updateThumbnailViews() {
     const unprocessed = document.querySelectorAll('yt-lockup-view-model:not([data-yt-processed])');
     if (unprocessed.length === 0) return;
@@ -80,21 +97,26 @@ console.log('[YT Ratio] Extension loaded');
       if (rows.length < 2) return;
 
       const viewsRow = rows[1];
-      const viewsSpan = viewsRow.querySelector('.ytContentMetadataViewModelMetadataText');
-      if (!viewsSpan) return;
+      const link = item.querySelector('a[href*="/watch?v="]');
+      if (!link) return;
 
-      const viewsText = viewsSpan.textContent.trim();
+      const videoId = new URL(link.href).searchParams.get('v');
+      if (!videoId) return;
+
+      item.setAttribute('data-yt-processed', 'true');
 
       const badge = document.createElement('span');
-      badge.className = 'yt-thumb-views';
+      badge.className = 'yt-thumb-likes';
       badge.setAttribute('aria-hidden', 'true');
       badge.style.marginLeft = '6px';
       badge.style.color = '#aaa';
       badge.style.fontSize = '12px';
-      badge.textContent = viewsText;
-
+      badge.textContent = '…';
       viewsRow.appendChild(badge);
-      item.setAttribute('data-yt-processed', 'true');
+
+      fetchLikes(videoId).then(likes => {
+        badge.textContent = likes !== null ? formatCount(likes) + ' likes' : '?';
+      });
     });
   }
 
