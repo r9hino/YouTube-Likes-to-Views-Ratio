@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Opencode YouTube Ratio",
+  "name": "YouTube Likes to Views Ratio",
   "version": "1.0",
-  "description": "Shows likes/views ratio and subscriber count on YouTube videos",
+  "description": "Shows likes/views ratio on YouTube videos",
   "permissions": ["activeTab", "scripting"],
   "host_permissions": ["*://*.youtube.com/*"],
   "content_scripts": [
