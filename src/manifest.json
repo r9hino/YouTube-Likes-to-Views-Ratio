@@ -1,13 +1,13 @@
 {
   "manifest_version": 3,
   "name": "YouTube Likes to Views Ratio",
-  "version": "1.0",
+  "version": "1.3",
   "description": "Shows likes/views ratio on YouTube videos",
   "permissions": ["activeTab", "scripting"],
   "host_permissions": ["*://*.youtube.com/*"],
   "content_scripts": [
     {
-      "matches": ["*://*.youtube.com/", "*://*.youtube.com/watch*"],
+      "matches": ["*://*.youtube.com/", "*://*.youtube.com/watch*", "*://*.youtube.com/results*"],
       "js": ["content.js"]
     }
   ]

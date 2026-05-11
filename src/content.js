@@ -130,9 +130,53 @@ console.log('[YT Ratio] Extension loaded');
     });
   }
 
+  function updateSearchThumbnails() {
+    const unprocessed = document.querySelectorAll('ytd-video-renderer[is-search]:not([data-yt-processed])');
+    if (unprocessed.length === 0) return;
+
+    unprocessed.forEach(item => {
+      const metadataLine = item.querySelector('#metadata-line');
+      if (!metadataLine) return;
+
+      const link = item.querySelector('a#thumbnail[href*="/watch?v="]');
+      if (!link) return;
+
+      const videoId = new URL(link.href).searchParams.get('v');
+      if (!videoId) return;
+
+      item.setAttribute('data-yt-processed', 'true');
+
+      const delimiter = document.createElement('span');
+      delimiter.setAttribute('aria-hidden', 'true');
+      delimiter.style.color = '#aaa';
+      delimiter.style.margin = '0 4px';
+      delimiter.textContent = '•';
+      metadataLine.appendChild(delimiter);
+
+      const badge = document.createElement('span');
+      badge.className = 'yt-search-ratio';
+      badge.setAttribute('aria-hidden', 'true');
+      badge.style.fontSize = '1.2rem';
+      badge.textContent = '…';
+      metadataLine.appendChild(badge);
+
+      fetchVideoStats(videoId).then(({ likes, views }) => {
+        if (likes === null || views === null || views === 0) {
+          badge.style.color = '#aaa';
+          badge.textContent = '?';
+          return;
+        }
+        const ratio = (likes / views) * 100;
+        badge.style.color = getRatioColor(ratio);
+        badge.textContent = 'LVR ' + ratio.toFixed(1) + '%';
+      });
+    });
+  }
+
   function update() {
     updateRatio();
     updateThumbnailViews();
+    updateSearchThumbnails();
   }
 
   if (document.readyState === 'loading') {
