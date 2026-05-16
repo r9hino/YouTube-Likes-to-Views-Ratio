@@ -65,10 +65,25 @@ console.log('[YT Ratio] Extension loaded');
       }
     }
 
+    const commentCount = getCommentCount();
+    let cvrHtml = '';
+    if (commentCount !== null && views > 0) {
+      const cvr = ((commentCount / views) * 1000).toFixed(1);
+      const cvrColor = getRatioColor(parseFloat(cvr));
+      cvrHtml = `<span style="color:#aaa">&nbsp;-&nbsp;</span><span style="color:${cvrColor}">CVR ${cvr}%</span>`;
+    }
+
     const btnStyle = window.getComputedStyle(likeButton);
     ratioDisplay.style.backgroundColor = btnStyle.backgroundColor;
     ratioDisplay.style.color = ratioColor;
-    ratioDisplay.textContent = 'LVR ' + ratioFormatted;
+    ratioDisplay.innerHTML = `<span style="color:${ratioColor}">LVR ${ratioFormatted}</span>${cvrHtml}`;
+  }
+
+  function getCommentCount() {
+    const countEl = document.querySelector('ytd-comments-header-renderer #count');
+    if (!countEl) return null;
+    const count = extractNumber(countEl.textContent);
+    return count > 0 ? count : null;
   }
 
   async function fetchVideoStats(videoId) {
