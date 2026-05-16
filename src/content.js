@@ -167,8 +167,8 @@ console.log('[YT Ratio] Extension loaded');
     if (unprocessed.length === 0) return;
 
     unprocessed.forEach(item => {
-      const metadataLine = item.querySelector('#metadata-line');
-      if (!metadataLine) return;
+      const channelInfo = item.querySelector('#channel-info');
+      if (!channelInfo) return;
 
       const link = item.querySelector('a#thumbnail[href*="/watch?v="]');
       if (!link) return;
@@ -183,24 +183,30 @@ console.log('[YT Ratio] Extension loaded');
       delimiter.style.color = '#aaa';
       delimiter.style.margin = '0 4px';
       delimiter.textContent = '•';
-      metadataLine.appendChild(delimiter);
+      channelInfo.appendChild(delimiter);
 
       const badge = document.createElement('span');
       badge.className = 'yt-search-ratio';
       badge.setAttribute('aria-hidden', 'true');
       badge.style.fontSize = '1.2rem';
       badge.textContent = '…';
-      metadataLine.appendChild(badge);
+      channelInfo.appendChild(badge);
 
-      fetchVideoStats(videoId).then(({ likes, views }) => {
+      fetchVideoStats(videoId).then(({ likes, views, comments }) => {
         if (likes === null || views === null || views === 0) {
           badge.style.color = '#aaa';
           badge.textContent = '?';
           return;
         }
         const ratio = (likes / views) * 100;
-        badge.style.color = getRatioColor(ratio);
-        badge.textContent = 'LVR ' + ratio.toFixed(1) + '%';
+        const lvrColor = getRatioColor(ratio);
+        let html = `<span style="color:${lvrColor}">LVR ${ratio.toFixed(1)}%</span>`;
+        if (comments !== null) {
+          const cvr = ((comments / views) * 1000).toFixed(1);
+          const cvrColor = getRatioColor(parseFloat(cvr));
+          html += `<span style="color:#aaa">&nbsp;-&nbsp;</span><span style="color:${cvrColor}">CVR ${cvr}%</span>`;
+        }
+        badge.innerHTML = html;
       });
     });
   }
