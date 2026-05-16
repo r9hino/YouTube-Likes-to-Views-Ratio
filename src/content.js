@@ -89,6 +89,14 @@ console.log('[YT Ratio] Extension loaded');
   }
 
   function getCommentCount() {
+    const scripts = document.querySelectorAll('script:not([src])');
+    for (const script of scripts) {
+      const text = script.textContent;
+      if (!text.includes('engagement-panel-comments-section')) continue;
+      const match = text.match(/"engagement-panel-comments-section"[\s\S]{0,2000}?"contextualInfo":\{"runs":\[\{"text":"([^"]+)"\}/);
+      if (match) return parseAbbreviatedNumber(match[1]);
+    }
+    // fallback: read from rendered DOM if already scrolled
     const countEl = document.querySelector('ytd-comments-header-renderer #count');
     if (!countEl) return null;
     const count = extractNumber(countEl.textContent);
